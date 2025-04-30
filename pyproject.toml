@@ -1,0 +1,191 @@
+# needs to be in root of project directory
+# flags specified will apply running CI tests locally, as well as in GitHub actions
+
+[build-system]
+requires = ['setuptools', 'setuptools-scm']
+build-backend = 'setuptools.build_meta'
+
+[project]
+name = 'demo'
+version = '0.1.0'
+description = 'Add your description here'
+readme = 'README.md'
+requires-python = '>=3.9'
+
+# to install `uv pip install -r pyproject.toml --system` (`--system` to install w/o venv)
+dependencies = [
+    'uv',  # used to install depdenencies from `pyproject.toml` quickly
+    'pre-commit',
+    'ruff',
+    'requests_mock',
+    'python-dotenv',
+    'requests',
+    'fastapi',
+    'uvicorn',
+    'flask',
+    'redis',
+    'types-requests',
+    'httpx'
+]
+
+[project.optional-dependencies]
+# each of the keys defines a “packaging extra”
+# `pip install your-project-name[test]` to install your project only in [test] block
+test = [
+  'rich',
+  'click',
+]
+
+# dev = []
+
+[tool.ruff]
+exclude =[
+    'sandbox',  # directory
+    'pyproject.toml',
+    '__init__.py',
+    '*.pyi',
+    '*.ipynb',
+    'Dockerfile*',
+    'sandbox',
+]
+line-length = 127
+indent-width = 4
+
+[tool.ruff.lint]
+# Allow fix for all enabled rules (when `--fix`) is provided.
+fixable = ['ALL']
+unfixable = []
+ignore = [
+    'F842',  # superfluous-parens
+    'D100',  # missing module docstring
+    'F841',  # no-member
+    'F841',  # global variables
+    'F841',  # using the global statement
+    'N805',   # argument name doesn't conform to snake_case naming style
+    'N801',   # too few public methods
+    'F841',   # catching too general exception Exception
+    'N801',   # too many instance attributes
+    'F841',   # attribute-defined-outside-init
+    'F841',   # too many ancestors
+    'F841',   # use lazy % formatting in logging functions (logging-fstring-interpolation)
+    'F401',   # import-outside-toplevel
+    'F841',   # use lazy % formatting in logging functions (logging-not-lazy)
+    'F841',   # dangerous-default-value
+    'F841',   # redefined-outer-name
+]
+
+[tool.ruff.format]
+# Like Black, use double quotes for strings.
+quote-style = 'preserve'
+
+# Like Black, indent with spaces, rather than tabs.
+indent-style = 'space'
+
+# Like Black, respect magic trailing commas.
+skip-magic-trailing-comma = false
+
+# Like Black, automatically detect the appropriate line ending.
+line-ending = 'auto'
+
+[tool.ruff.lint.flake8-quotes]
+docstring-quotes = "single"
+inline-quotes = "single"
+multiline-quotes = "single"
+
+[tool.flake8] # checks pep8 formatting
+max_line_length = 127
+count = true # print the total number of errors
+max_complexity = 15 # set maximum allowed McCabe complexity value for a block of code
+statistics = true # count number of occurrences of each error/warning code and print a report
+exclude = [
+    'sandbox',  # directory
+]
+
+[tool.mypy] # verifies input and return types
+ignore_missing_imports = true # ignore all missing imports
+disallow_untyped_defs = true # function definition without type annotations
+disallow_incomplete_defs = true # function with type annotations calls a function defined without annotations
+show_error_codes = true # add an error code to error messages
+implicit_optional = true # allow Optional for arguments with default values of None (https://github.com/hauntsaninja/no_implicit_optional)
+disable_error_code = ["import-untyped"]
+exclude = [
+    'sandbox',  # directory
+]
+
+[tool.isort] # sorts imports
+line_length = 127
+
+[tool.pylint] # checks formatting and errors
+max-line-length = 127
+fail-under = 8.0 # Specify a score threshold under which the program will exit with error ([0, 10]
+output-format = 'colorized'
+disable = [
+    'F0010', # checks __init__.py in root directory (causes mypy error)
+    'C0325', # superfluous-parens
+    'C0114', # missing module docstring
+    'E1101', # no-member, already covered by mypy. ignore b/c already have `# type: ignore` for mypy for problem lines
+    'W0602', # global variables
+    'W0603', # using the global statement
+    'C0103', # argument name doesn't conform to snake_case naming style
+    'R0903', # too few public methods
+    'W0718', # catching too general exception Exception
+    'R0902', # too many instance attributes
+    'W0201', # attribute-defined-outside-init
+    'R0901', # too many ancestors
+    'W1203', # use lazy % formatting in logging functions (logging-fstring-interpolation)
+    'C0415', # import-outside-toplevel
+    'W1201', # use lazy % formatting in logging functions (logging-not-lazy)
+    'W0102', # dangerous-default-value
+    'W0621', # redefined-outer-name
+    'W0707', # raise-missing-from
+]
+ignore = [
+    'sandbox',  # directory
+    'pyproject.toml',
+    '__init__.py',
+]
+ignore-patterns = [
+    '.*.bat',
+    '.*.xlsx',
+    '.*.xls',
+    '.*.csv',
+    '.*.txt',
+    '.*.md',
+    '.*.html',
+    '.*.json',
+    '.*.ini',
+    '.*.conf',
+    '.*.yaml',
+    '.*.yml',
+    '.*.sql',
+]
+max-args = 15 # max arguments allowed per function
+max-locals = 25 # max amount of local variables allowed to be declared per function
+max-module-lines = 1200 # max number of lines in a function
+max-returns = 10
+# max-public-methods = 25  # max number of public methods per class
+
+[tool.interrogate] # checks missing docstrings
+ignore_module = true # ignore module-level docstrings
+fail_under = 80 # fail when coverage % is less than a given amount ([0, 100]
+verbose = 2 # show where docstrings missing
+ignore_init_method = true
+ignore_property_decorators = true # getters and setters
+exclude = [
+    'sandbox',  # directory
+    'tests',  # directory
+]
+
+[tool.bandit] # checks security vulnerabilities
+r = true # recursive
+ll = true # long lines - display the full line of code that contains a security issue
+skips = [
+    'B101', # B101: test for use of assert (don't check b/c used in pytest)
+    'B104', # B104: flagging `host=0.0.0.0` for flask run, but needed for Docker (locally and on AWS ECS)
+]
+exclude = [
+    'sandbox',  # directory
+]
+
+[tool.bandit.assert_used]
+skips = ['*/*_test.py', '*/test_*.py']
