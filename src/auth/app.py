@@ -4,14 +4,13 @@ import os
 import uuid
 from typing import Any, Dict
 
+import logging_config  # pylint: disable=import-error
 import redis
 import requests
 from dotenv import load_dotenv
 from fastapi import FastAPI, HTTPException, Request, status
 from fastapi.responses import RedirectResponse
 from requests.exceptions import RequestException, Timeout
-
-from . import logging_config  # pylint: disable=import-error
 
 # * configure logging
 logging_config.setup_logging(os.getenv("LOG_LEVEL", "WARNING"))

@@ -4,12 +4,11 @@ import os
 from functools import wraps
 from typing import Any, Callable
 
+import logging_config  # pylint: disable=import-error
 import requests
 from dotenv import load_dotenv
 from flask import Flask, g, redirect, render_template, request, url_for
 from werkzeug.wrappers import Response as WerkzeugResponse
-
-from . import logging_config  # pylint: disable=import-error
 
 # * configure logging
 logging_config.setup_logging(os.getenv("LOG_LEVEL", "WARNING"))
