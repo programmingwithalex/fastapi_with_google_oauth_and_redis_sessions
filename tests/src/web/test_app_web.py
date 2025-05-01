@@ -3,7 +3,6 @@ from typing import Any, Generator
 
 import pytest
 import requests_mock
-from _pytest.monkeypatch import MonkeyPatch
 from flask.testing import FlaskClient
 from requests_mock.mocker import Mocker
 
@@ -11,7 +10,7 @@ import src.web.app as web_app_module
 
 
 @pytest.fixture(autouse=True)
-def configure_env(monkeypatch: MonkeyPatch) -> None:
+def configure_env(monkeypatch: pytest.MonkeyPatch) -> None:
     """
     Override AUTH_SERVICE_URL at both env and module level, enable TESTING.
     """

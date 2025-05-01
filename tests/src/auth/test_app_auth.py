@@ -3,7 +3,6 @@ import os
 import pytest
 import redis
 import requests
-from _pytest.monkeypatch import MonkeyPatch
 from fastapi import status
 from fastapi.testclient import TestClient
 from requests.exceptions import RequestException, Timeout
@@ -12,7 +11,7 @@ from src.auth import app
 
 
 @pytest.fixture(autouse=True)
-def setup_env(monkeypatch: MonkeyPatch) -> None:
+def setup_env(monkeypatch: pytest.MonkeyPatch) -> None:
     """
     Set required environment variables for the auth service.
     """
@@ -42,7 +41,7 @@ def client() -> TestClient:
     ],
 )
 def test_auth_google_token_errors(
-    monkeypatch: MonkeyPatch, client: TestClient, exception: Exception, status_code: int
+    monkeypatch: pytest.MonkeyPatch, client: TestClient, exception: Exception, status_code: int
 ) -> None:
     """Errors during token exchange map to appropriate HTTPException codes."""
     monkeypatch.setattr(requests, "post", lambda *args, **kwargs: (_ for _ in ()).throw(exception))
@@ -50,7 +49,7 @@ def test_auth_google_token_errors(
     assert resp.status_code == status_code
 
 
-def test_auth_google_no_token(client: TestClient, monkeypatch: MonkeyPatch) -> None:
+def test_auth_google_no_token(client: TestClient, monkeypatch: pytest.MonkeyPatch) -> None:
     """Missing access_token in token response returns 502."""
 
     class TokenResp:
@@ -76,7 +75,7 @@ def test_auth_google_no_token(client: TestClient, monkeypatch: MonkeyPatch) -> N
     ],
 )
 def test_auth_google_userinfo_errors(
-    monkeypatch: MonkeyPatch, client: TestClient, exception: Exception, status_code: int
+    monkeypatch: pytest.MonkeyPatch, client: TestClient, exception: Exception, status_code: int
 ) -> None:
     """Errors during user-info fetch map to appropriate HTTPException codes."""
 
@@ -103,21 +102,21 @@ def test_verify_missing_session(client: TestClient) -> None:
     assert resp.json()["detail"] == "Missing session_id"
 
 
-def test_verify_redis_error(monkeypatch: MonkeyPatch, client: TestClient) -> None:
+def test_verify_redis_error(monkeypatch: pytest.MonkeyPatch, client: TestClient) -> None:
     """Redis errors during /verify return 500."""
     monkeypatch.setattr(app.redis_session_store, "get", lambda k: (_ for _ in ()).throw(redis.RedisError("fail")))
     resp = client.post("/verify", json={"session_id": "x"})
     assert resp.status_code == status.HTTP_500_INTERNAL_SERVER_ERROR
 
 
-def test_verify_invalid_session(monkeypatch: MonkeyPatch, client: TestClient) -> None:
+def test_verify_invalid_session(monkeypatch: pytest.MonkeyPatch, client: TestClient) -> None:
     """Invalid session_id returns 401."""
     monkeypatch.setattr(app.redis_session_store, "get", lambda k: None)
     resp = client.post("/verify", json={"session_id": "x"})
     assert resp.status_code == status.HTTP_401_UNAUTHORIZED
 
 
-def test_verify_success(monkeypatch: MonkeyPatch, client: TestClient) -> None:
+def test_verify_success(monkeypatch: pytest.MonkeyPatch, client: TestClient) -> None:
     """Valid session_id returns 200 and user payload."""
     monkeypatch.setattr(app.redis_session_store, "get", lambda k: b"userdata")
     resp = client.post("/verify", json={"session_id": "x"})
@@ -132,14 +131,14 @@ def test_logout_missing_session(client: TestClient) -> None:
     assert resp.json()["detail"] == "Missing session_id"
 
 
-def test_logout_redis_error(monkeypatch: MonkeyPatch, client: TestClient) -> None:
+def test_logout_redis_error(monkeypatch: pytest.MonkeyPatch, client: TestClient) -> None:
     """Redis errors during /logout return 500."""
     monkeypatch.setattr(app.redis_session_store, "delete", lambda k: (_ for _ in ()).throw(redis.RedisError("fail")))
     resp = client.post("/logout", json={"session_id": "x"})
     assert resp.status_code == status.HTTP_500_INTERNAL_SERVER_ERROR
 
 
-def test_logout_success(monkeypatch: MonkeyPatch, client: TestClient) -> None:
+def test_logout_success(monkeypatch: pytest.MonkeyPatch, client: TestClient) -> None:
     """Valid logout returns 200 and confirms deletion."""
     called: dict = {}
 
