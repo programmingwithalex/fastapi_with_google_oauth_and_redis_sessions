@@ -60,7 +60,7 @@ REDIS_SSL=false
 GOOGLE_OAUTH_CLIENT_ID=<your-google-client-id>
 GOOGLE_OAUTH_CLIENT_SECRET=<your-google-client-secret>
 GOOGLE_REDIRECT_URI=http://localhost:8000/auth/google
-WEB_FRONTEND_URL=http://localhost:5000
+WEB_FRONTEND_URL=http://localhost:5000  # specified in Google Cloud as Redirect URI (add FastAPI route at end in GC)
 SESSION_EXPIRE_TIME_SECONDS=3600
 LOG_LEVEL=INFO
 ```
@@ -68,7 +68,7 @@ LOG_LEVEL=INFO
 ### web_service (`src/web/.env`)
 
 ```ini
-AUTH_SERVICE_URL=http://localhost:8000
+AUTH_SERVICE_URL=http://auth:8000  # corresponds to docker-compose.yml
 SECRET_KEY=<your-flask-secret-key>
 COOKIE_SECURE=false
 LOG_LEVEL=INFO
