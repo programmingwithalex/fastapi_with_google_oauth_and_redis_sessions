@@ -110,6 +110,24 @@ Will also run on each commit to GitHub repo.
 
 ---
 
+## To Do
+
+- implement on AWS using:
+   - `ECS`
+      - single `Cluster`
+      - two `Services`
+         - `Flask` frontend
+         - `FastAPI` auth service
+   - `ElastiCache` - for `Redis` cluster
+   - `CDK`/`Terraform` - IaC
+   - `ECS Service Connect`/`API Gateway`
+      - for communication between `ECS Services`
+      - `ECS Service Connect` - communication if `Services` in same `AWS Cloud Map`
+      - `API Gateway` - dedicated URL that can route to "auth service", which can be set in the "web front end" `Service`
+         - set `API Gateway` URL via:
+            - `SSM Parameter Store` + `ECS Task Definition` env vars
+            - `AWS AppConfig`
+
 ## Appendix
 
 ### ¹Google OAuth Setup
