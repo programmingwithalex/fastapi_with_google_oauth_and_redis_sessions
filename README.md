@@ -53,16 +53,16 @@ Create a `.env` file in each service directory with the following keys:
 ### auth_service (`src/auth/.env`)<a href="#appendix">¹</a>
 
 ```ini
-REDIS_HOST=localhost
-REDIS_PORT=6379
-REDIS_DB=0
-REDIS_SSL=false
+GOOGLE_OAUTH_TOKEN_URL="https://oauth2.googleapis.com/token"
+GOOGLE_OAUTH_USERINFO_URL="https://www.googleapis.com/oauth2/v3/userinfo"
 GOOGLE_OAUTH_CLIENT_ID=<your-google-client-id>
 GOOGLE_OAUTH_CLIENT_SECRET=<your-google-client-secret>
-GOOGLE_REDIRECT_URI=http://localhost:8000/auth/google  # specified in Google Cloud as Redirect URI
-WEB_FRONTEND_URL=http://localhost:5000
+GOOGLE_REDIRECT_URI=http://localhost:8000/auth/google
 SESSION_EXPIRE_TIME_SECONDS=3600
-LOG_LEVEL=INFO
+REDIS_HOST=redis
+REDIS_SSL=false  # Set to true if using Redis with SSL
+REDIS_PORT=6379
+WEB_FRONTEND_URL="http://localhost:5000"  # URL of the Auth service
 ```
 
 ### web_service (`src/web/.env`)
@@ -70,8 +70,8 @@ LOG_LEVEL=INFO
 ```ini
 AUTH_SERVICE_URL=http://auth:8000  # corresponds to docker-compose.yml
 SECRET_KEY=<your-flask-secret-key>
-COOKIE_SECURE=false
-LOG_LEVEL=INFO
+COOKIE_SECURE=false  # Set to True in production with HTTPS
+FLASK_ENV="development"  # Set to "production" in production
 PORT_FLASK=5000
 ```
 
