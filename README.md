@@ -122,7 +122,7 @@ Will also run on each commit to GitHub repo.
   - `CDK`/`Terraform` - IaC
   - `ECS Service Connect`/`API Gateway`
     - for communication between `ECS Services`
-  - `ECS Service Connect` - communication if `Services` in same `AWS Cloud Map`
+    - `ECS Service Connect` - communication if `Services` in same `AWS Cloud Map`
   - `API Gateway` - dedicated URL that can route to "auth service", which can be set in the "web front end" `Service`
     - set `API Gateway` URL via:
       - `SSM Parameter Store` + `ECS Task Definition` env vars
