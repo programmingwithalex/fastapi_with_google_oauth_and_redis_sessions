@@ -29,7 +29,7 @@ try:
     GOOGLE_OAUTH_USERINFO_URL: str = os.environ["GOOGLE_OAUTH_USERINFO_URL"]
     GOOGLE_CLIENT_ID: str = os.environ["GOOGLE_OAUTH_CLIENT_ID"]
     GOOGLE_CLIENT_SECRET: str = os.environ["GOOGLE_OAUTH_CLIENT_SECRET"]
-    GOOGLE_REDIRECT_URI: str = "http://localhost:8000/auth/google"
+    GOOGLE_REDIRECT_URI: str = os.environ["GOOGLE_REDIRECT_URI"]
 
     WEB_FRONTEND_URL: str = os.environ["WEB_FRONTEND_URL"]
 except KeyError as e:
