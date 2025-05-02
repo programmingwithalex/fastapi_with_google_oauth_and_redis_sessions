@@ -19,6 +19,7 @@ env:
   AUTH_SERVICE_URL: http://localhost:8000
   GOOGLE_OAUTH_TOKEN_URL: https://oauth2.googleapis.com/token
   GOOGLE_OAUTH_USERINFO_URL: https://www.googleapis.com/oauth2/v3/userinfo
+  GOOGLE_REDIRECT_URI: http://localhost:8000/auth/google
   GOOGLE_OAUTH_CLIENT_ID: your-client-id
   GOOGLE_OAUTH_CLIENT_SECRET: your-client
   WEB_FRONTEND_URL: http://localhost:5000
