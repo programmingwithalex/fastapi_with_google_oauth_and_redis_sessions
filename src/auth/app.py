@@ -18,6 +18,7 @@ logger = logging.getLogger(__name__)
 
 load_dotenv()
 
+
 # * load required environment variables
 try:
     REDIS_HOST: str = os.getenv("REDIS_HOST", "localhost")
@@ -27,6 +28,7 @@ try:
 
     GOOGLE_OAUTH_TOKEN_URL: str = os.environ["GOOGLE_OAUTH_TOKEN_URL"]
     GOOGLE_OAUTH_USERINFO_URL: str = os.environ["GOOGLE_OAUTH_USERINFO_URL"]
+    GOOGLE_OAUTH_TOKEN_REVOKE_URL = os.environ["GOOGLE_OAUTH_TOKEN_REVOKE_URL"]
     GOOGLE_CLIENT_ID: str = os.environ["GOOGLE_OAUTH_CLIENT_ID"]
     GOOGLE_CLIENT_SECRET: str = os.environ["GOOGLE_OAUTH_CLIENT_SECRET"]
     GOOGLE_REDIRECT_URI: str = os.environ["GOOGLE_REDIRECT_URI"]
@@ -56,6 +58,29 @@ except redis.RedisError as e:
 except Exception as e:
     logger.critical(f"Redis connection failed (unknown exception): {e}")
     raise
+
+
+def _revoke_google_token(access_token: str) -> None:
+    """
+    Revoke a Google OAuth2 access token silently.
+
+    Only necessary if want strong security and to ensure that the token is no longer valid.
+    This is not strictly necessary for the app to function, but it is a good practice.
+
+    Args:
+        access_token (str): The Google access token to revoke.
+    """
+    try:
+        resp = requests.post(
+            GOOGLE_OAUTH_TOKEN_REVOKE_URL,
+            params={"token": access_token},
+            headers={"content-type": "application/x-www-form-urlencoded"},
+            timeout=5,
+        )
+        resp.raise_for_status()
+        logger.info("Successfully revoked Google token")
+    except RequestException as e:
+        logger.error(f"Failed to revoke Google token: {e}")
 
 
 @app.get("/login/google")
@@ -118,6 +143,7 @@ async def auth_google(code: str) -> RedirectResponse:
         "email": user_info.get("email"),
         "name": user_info.get("name"),
         "source": "google",
+        "access_token": access_token,
     }
 
     try:
@@ -169,9 +195,26 @@ async def logout(request: Request) -> Dict[str, str]:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Missing session_id")
 
     try:
-        redis_session_store.delete(f"session:{session_id}")
+        raw = redis_session_store.get(f"session:{session_id}")
     except redis.RedisError as e:
         logger.error(f"Redis error on logout: {e}")
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Internal error")
+
+    # * revoke google token if present - not strictly necessary - can wait for it to expire (usually 1 hour)
+    if raw:
+        session_info: Dict[str, Any] = json.loads(raw)
+        if token := session_info.get("access_token"):
+            # logger.info(f"Revoking google token: {token}")
+            _revoke_google_token(token)
+
+    # * delete session from redis
+    try:
+        redis_session_store.delete(f"session:{session_id}")
+    except redis.RedisError as e:
+        logger.error(f"Redis error on logout delete: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Internal error",
+        )
 
     return {"message": "Logged out"}
